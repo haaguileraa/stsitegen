@@ -1,6 +1,13 @@
 import re
 from textnode import TextNode, TextType
 
+def text_to_textnodes(text: str) -> list[TextNode]:
+    node: TextNode = TextNode(text, TextType.TEXT)
+    nodes: list[TextNode] = split_nodes_link([node])
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    return split_nodes_delimiter(nodes, "`", TextType.CODE)
 
 def extract_markdown_images(text: str) -> list[tuple[str, str]]:
     images_re: str = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
@@ -74,7 +81,7 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
             continue
         text_parts: list[str] = old_node.text.split(delimiter)
         n_parts: int = len(text_parts)
-        if  n_parts == 1 or n_parts % 2 == 0:
+        if  n_parts % 2 == 0:
             raise SyntaxError(f"invalid markdown syntax: text \"{old_node.text}\" does not contain a matching number of delimiters '{delimiter}'")
         nodes_in_old_node: list[TextNode] = []
         for i in range(n_parts):
