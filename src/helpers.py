@@ -1,6 +1,18 @@
 import re
 from textnode import TextNode, TextType
 
+
+def markdown_to_blocks(markdown: str) -> list[str]:
+    blocks: list[str] = markdown.split("\n\n")
+    result: list[str] = []
+    for block in blocks:
+        block = block.strip()
+        if block == "":
+            continue
+        result.append(block)
+    return result
+
+
 def text_to_textnodes(text: str) -> list[TextNode]:
     node: TextNode = TextNode(text, TextType.TEXT)
     nodes: list[TextNode] = split_nodes_link([node])
