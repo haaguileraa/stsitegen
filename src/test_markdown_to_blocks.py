@@ -47,3 +47,6 @@ This is the same paragraph on a new line
                     "- This is a list\n- with items",
                 ],
             )
+
+if __name__ == "__main__":
+    unittest.main()

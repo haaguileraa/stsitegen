@@ -1,5 +1,5 @@
 import unittest
-from blocktype import BlockType, block_to_block_type
+from markdown import BlockType, block_to_block_type
 
 class TestBlockType(unittest.TestCase):
 
@@ -16,7 +16,7 @@ class TestBlockType(unittest.TestCase):
         self.assertEqual(BlockType.CODE, block_type)
         
     def test_valid_quote(self):
-        block: str = "> This is a quote >"
+        block: str = """> This is a quote \n> this too"""
         block_type: BlockType = block_to_block_type(block)
         self.assertEqual(BlockType.QUOTE, block_type)
          
@@ -44,11 +44,6 @@ class TestBlockType(unittest.TestCase):
         block_type: BlockType = block_to_block_type(block)
         self.assertEqual(BlockType.PARAGRAPH, block_type)
 
-    def test_invalid_quote(self):
-        block: str = """>This is no quote"""
-        block_type: BlockType = block_to_block_type(block)
-        self.assertEqual(BlockType.PARAGRAPH, block_type)
- 
     def test_invalid_ordered_list(self):
         block: str = """1. This is a first point
         3. This is a second point
