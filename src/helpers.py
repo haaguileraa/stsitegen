@@ -1,7 +1,41 @@
+import os
 import re
+import shutil
 from textnode import TextNode, TextType
 
+def copy_files(root_source_path: str, target_path: str, first_iteration: bool = True, source_paths: list[str] = []) -> None:
+    if len(source_paths) == 0:
+        if not first_iteration:
+            return
+        source_paths = [""]
+    sub_path: str = source_paths[0] 
+    source_path: str = os.path.join(root_source_path, sub_path)
+    
+    if os.path.isfile(target_path):
+        raise ValueError("cannot copy directorty {source_path} in a file {target_path}")
+    
+    if not os.path.exists(target_path):
+        os.mkdir(target_path)
+    else:
+        if first_iteration: 
+            shutil.rmtree(target_path)
 
+    if not os.path.exists(source_path):
+        raise ValueError(f"cannot copy {source_path} to {target_path}. Path {source_path} does not exists")
+
+    target_sub_path: str = os.path.join(target_path, sub_path)
+   
+    if not os.path.isfile(source_path):
+        source_paths.extend([os.path.join(sub_path, sub_sub_path) for sub_sub_path in os.listdir(source_path)])
+        
+        if not os.path.exists(target_sub_path):
+            os.mkdir(target_sub_path)           
+    else:
+        path: str = shutil.copy(source_path, target_sub_path)
+        
+    copy_files(root_source_path, target_path, False, source_paths[1:]) 
+
+   
 def markdown_to_blocks(markdown: str) -> list[str]:
     blocks: list[str] = markdown.split("\n\n")
     result: list[str] = []

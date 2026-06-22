@@ -1,11 +1,9 @@
 from textnode import TextType, TextNode
+from helpers import copy_files
 
 def main() -> None:
-    text: str = "test link text"
-    text_type: TextType = TextType.LINK
-    url: str = "https://github.com/"
-    text_node: TextNode = TextNode(text, text_type, url)
-    print(text_node)
+    copy_files("./static", "./public", first_iteration = True)
+
 
 if __name__ == "__main__":
-        main()
+    main()
