@@ -1,6 +1,6 @@
 import unittest
 from helpers import extract_markdown_images, extract_markdown_links
-
+from markdown import extract_title
 
 class TestMarkdownHelpers(unittest.TestCase):
     def test_extract_markdown_images(self):
@@ -30,8 +30,16 @@ class TestMarkdownHelpers(unittest.TestCase):
     def test_extract_markdown_links(self):
         matches = extract_markdown_links("This text has a [link](https://github.com)")
         self.assertListEqual([("link", "https://github.com")], matches)
- 
 
+    def test_extract_title(self):
+        md: str = "\n# Hello"  
+        self.assertEqual("Hello", extract_title(md))
+        md = "# This is my title\n\nAnd this part shouldn't matter"
+        self.assertEqual("This is my title", extract_title(md))
+        wrong_format_func = lambda : extract_title("")
+        self.assertRaises(ValueError, wrong_format_func)
+        wrong_format_func = lambda : extract_title("\n## Test")
+        self.assertRaises(ValueError, wrong_format_func)
 
 if __name__ == "__main__":
     unittest.main()

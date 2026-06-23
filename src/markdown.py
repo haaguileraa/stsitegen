@@ -1,12 +1,14 @@
 import re
 from enum import Enum
+import os
 from helpers import markdown_to_blocks, text_to_textnodes
 from htmlnode import HTMLNode
-from leafnode import LeafNode
 from parentnode import ParentNode
-from textnode import TextNode, text_node_to_html_node
+from textnode import TextNode, text_node_to_html_node, TextType
+
 
 HEADING_EXPR: str = r"^#{1,6}"
+TITLE_EXPR: str = r"^#\s(.*)?"
 CODE_EXPR: str = r"^`{3}\n[^`]*`{3}" 
 QUOTE_EXPR: str = r"^>(\s)?"
 UNORDERED_LIST_EXPR: str = r"^-\s+"
@@ -19,6 +21,33 @@ class BlockType(Enum):
     QUOTE = "quote"
     UNORDERED_LIST = "unordered_list"
     ORDERED_LIST = "ordered_list"
+
+
+def extract_title(markdown: str) -> str:
+    for line in markdown.split("\n"):
+        line = line.strip()
+        if line == "":
+            continue
+        match = re.search(TITLE_EXPR, line)
+        if match:
+            return match.group(1).strip()
+            break # we only check the first non-empty line    
+    raise ValueError("no title found at the start of", markdown)
+
+
+def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    with open(from_path, 'r') as file:
+        markdown: str = file.read()
+    with open(template_path, 'r') as file:
+        template: str = file.read()
+    html_node: HTMLNode = markdown_to_html_node(markdown)
+    content: str = html_node.to_html()
+    title: str = extract_title(markdown)
+    page:str = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    os.makedirs(os.path.dirname(dest_path), exist_ok = True)
+    with open(dest_path, 'w') as file:
+        file.write(page)
 
 
 def markdown_to_html_node(markdown: str) -> HTMLNode:
@@ -103,7 +132,9 @@ def markdown_header_to_node(header: str) -> HTMLNode:
 
 def markdown_code_to_node(code: str) -> HTMLNode:
     code_text: str = code.lstrip("```\n").rstrip("```")
-    code_node: LeafNode = LeafNode("code", code_text)
+    raw_text_node: TextNode = TextNode(code_text, TextType.TEXT)
+    child = text_node_to_html_node(raw_text_node)
+    code_node: ParentNode = ParentNode("code", [child])
     return ParentNode("pre", [code_node])
 
 

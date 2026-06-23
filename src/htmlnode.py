@@ -20,8 +20,8 @@ class HTMLNode():
             return ""
         formatted_props: list[str] = []
         for key, value in self.props.items():
-            formatted_props.append(f"{key}=\"{value}\"")
-        return " ".join(formatted_props)
+            formatted_props.append(f" {key}=\"{value}\"")
+        return "".join(formatted_props)
 
     def __repr__(self) -> str: 
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"

@@ -2,7 +2,8 @@ import os
 import re
 import shutil
 from textnode import TextNode, TextType
-
+ 
+ 
 def copy_files(root_source_path: str, target_path: str, first_iteration: bool = True, source_paths: list[str] = []) -> None:
     if len(source_paths) == 0:
         if not first_iteration:
