@@ -4,6 +4,7 @@ import os
 from helpers import markdown_to_blocks, text_to_textnodes
 from htmlnode import HTMLNode
 from parentnode import ParentNode
+from pathlib import Path
 from textnode import TextNode, text_node_to_html_node, TextType
 
 
@@ -22,6 +23,23 @@ class BlockType(Enum):
     UNORDERED_LIST = "unordered_list"
     ORDERED_LIST = "ordered_list"
 
+def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir_path: str) -> None:
+    paths: list[str] = os.listdir(dir_path_content)
+    if not paths or len(paths) == 0:
+        return
+    for path in paths:
+        joined_path = os.path.join(dir_path_content, path)
+        if os.path.isfile(joined_path):
+            file_path = Path(path)
+            if file_path.suffix != ".md":
+                continue
+            generate_page(joined_path, 
+                          template_path, 
+                          os.path.join(dest_dir_path, file_path.with_suffix(".html")))
+        else:
+            generate_pages_recursive(joined_path, 
+                                    template_path, 
+                                    os.path.join(dest_dir_path, path))
 
 def extract_title(markdown: str) -> str:
     for line in markdown.split("\n"):
