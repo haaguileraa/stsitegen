@@ -62,7 +62,11 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     html_node: HTMLNode = markdown_to_html_node(markdown)
     content: str = html_node.to_html()
     title: str = extract_title(markdown)
-    page:str = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    page: str = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    basepath: str = os.path.dirname(from_path)
+    if basepath != "/":
+        basepath += "/"
+    page = page.replace("href=\"/", f"href=\"{basepath}").replace("src=\"/", f"src=\"{basepath}")
     os.makedirs(os.path.dirname(dest_path), exist_ok = True)
     with open(dest_path, 'w') as file:
         file.write(page)
