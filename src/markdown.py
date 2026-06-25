@@ -23,7 +23,7 @@ class BlockType(Enum):
     UNORDERED_LIST = "unordered_list"
     ORDERED_LIST = "ordered_list"
 
-def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir_path: str) -> None:
+def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir_path: str, basepath: str) -> None:
     paths: list[str] = os.listdir(dir_path_content)
     if not paths or len(paths) == 0:
         return
@@ -35,11 +35,13 @@ def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir
                 continue
             generate_page(joined_path, 
                           template_path, 
-                          os.path.join(dest_dir_path, file_path.with_suffix(".html")))
+                          os.path.join(dest_dir_path, file_path.with_suffix(".html")),
+                          basepath)
         else:
             generate_pages_recursive(joined_path, 
-                                    template_path, 
-                                    os.path.join(dest_dir_path, path))
+                                     template_path, 
+                                     os.path.join(dest_dir_path, path),
+                                     basepath)
 
 def extract_title(markdown: str) -> str:
     for line in markdown.split("\n"):
@@ -53,7 +55,7 @@ def extract_title(markdown: str) -> str:
     raise ValueError("no title found at the start of", markdown)
 
 
-def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page(from_path: str, template_path: str, dest_path: str, basepath: str) -> None:
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path, 'r') as file:
         markdown: str = file.read()
@@ -63,7 +65,6 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     content: str = html_node.to_html()
     title: str = extract_title(markdown)
     page: str = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
-    basepath: str = os.path.dirname(from_path)
     if basepath != "/":
         basepath += "/"
     page = page.replace("href=\"/", f"href=\"{basepath}").replace("src=\"/", f"src=\"{basepath}")
